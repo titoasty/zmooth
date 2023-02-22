@@ -10,7 +10,7 @@ You can change the destination value at any time
 
 ## Basic example
 
-You can see an example [here][https://titoasty.github.io/zmooth/examples/mouse.html]
+You can see an example [here](https://titoasty.github.io/zmooth/examples/mouse.html)
 
 
 ## Installation
