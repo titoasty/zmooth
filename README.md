@@ -1,7 +1,7 @@
 # Zmooth
 
-Zmooth is a library to smoothly interpolate values.
-You simply set a destination value, and it will automatically interpolate to it.
+Zmooth is a library to smoothly interpolate values.\
+You simply set a destination value, and it will automatically interpolate to it.\
 The interpolation formula is the following:
 ```
 currentValue = previousValue + (destinationValue - previousValue) * delta * speed
@@ -55,7 +55,7 @@ myZmooth.kill();
 ## Functions
 ### `zmooth.to(startValue, speed=1, callback=undefined)`
 
-Create a zmooth object and returns it.
+Create a zmooth object and returns it.\
 You can now set the destination value by setting the *to* property.
 
 To kill it, simply call .kill() on a zmooth object.
