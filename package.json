@@ -1,0 +1,19 @@
+{
+  "name": "zmooth",
+  "version": "0.1.0",
+  "description": "smooth transition between values",
+  "main": "/dist/zmooth.js",
+  "module": "./dist/zmooth.mjs",
+  "types": "./dist/zmooth.d.ts",
+  "author": "Nicolas Bouvet <hi@nico-boo.com> (https://nico-boo.com)",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup && tsup --minify",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "tsup": "^6.6.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {}
+}

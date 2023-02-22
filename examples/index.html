@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <title>Zmooth - Basic example</title>
+
+        <style>
+            html,
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            #cursor {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100px;
+                height: 100px;
+                background-color: red;
+                border-radius: 50%;
+                transform: translate3d(-50%, -50%, 0);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="cursor"></div>
+
+        <script type="module">
+            import zmooth from '../dist/zmooth.mjs';
+
+            // get the div that will follow the cursor
+            const $cursor = document.getElementById('cursor');
+
+            // left position of the cursor
+            const zmoothLeft = zmooth.val(0, 5, function (value) {
+                cursor.style.left = value + 'px';
+            });
+
+            // top position of the cursor
+            const zmoothTop = zmooth.val(0, 5, function (value) {
+                cursor.style.top = value + 'px';
+            });
+
+            // on mouse move
+            window.addEventListener('mousemove', function (evt) {
+                // assign mouse position to zmooth objects
+                zmoothLeft.to = evt.pageX;
+                zmoothTop.to = evt.pageY;
+            });
+        </script>
+    </body>
+</html>
