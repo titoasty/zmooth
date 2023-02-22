@@ -1,12 +1,20 @@
 {
   "name": "zmooth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "smooth transition between values",
   "main": "/dist/zmooth.js",
   "module": "./dist/zmooth.mjs",
   "types": "./dist/zmooth.d.ts",
   "author": "Nicolas Bouvet <hi@nico-boo.com> (https://nico-boo.com)",
   "license": "MIT",
+  "homepage": "https://github.com/titoasty/zmooth",
+  "bugs": {
+    "url": "https://github.com/titoasty/zmooth/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/titoasty/zmooth.git"
+  },
   "scripts": {
     "build": "tsup && tsup --minify",
     "dev": "tsup --watch"
