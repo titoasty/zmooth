@@ -32,6 +32,10 @@ export class ZmoothManager {
         while (i-- > 0) {
             const zmooth = this.zmooths[i];
 
+            if (zmooth.paused) {
+                continue;
+            }
+
             if (zmooth.alive) {
                 zmooth.update(delta);
             } else {
@@ -48,10 +52,10 @@ export class ZmoothManager {
      * const myZmooth = zmooth.val(0, 5, function(value) {
      *     console.log(value);
      * });
-     * 
+     *
      * // will smoothly change from 0 to 10
      * myZmooth.to = 10;
-     * 
+     *
      * setTimeout(function() {
      *     // will smoothly change from current myZmooth value to 20
      *     myZmooth.to = 20;
@@ -59,8 +63,10 @@ export class ZmoothManager {
      * @param value Start value
      * @param speed Speed of change. The formula is: value = value + (toValue - currValue) * delta * speed
      * @param onChange Callback each time the value is updated
-     * @returns 
+     * @returns
      */
+    val<T extends number>(value: T, speed?: number, onChange?: (value: T) => void): ZmoothNumber;
+    val<T extends number[]>(value: T, speed?: number, onChange?: (value: T) => void): ZmoothArray;
     val<T extends number | number[]>(value: T, speed?: number, onChange?: (value: T) => void) {
         // FIXME
         // @ts-ignore
@@ -76,17 +82,17 @@ export class ZmoothManager {
      * const myObj = {
      *     myValue: 0,
      * };
-     * 
+     *
      * // now property 'myValue' on object myObj is managed automatically
      * const myZmooth = zmooth.prop(myObj, 'myValue');
-     * 
+     *
      * // now myObj.value will automatically be interpolated to 10
      * myZmooth.to = 10;
      * @param obj Any javascript object
      * @param propertyName Property that must be smoothed
      * @param speed Speed of change
      * @param onChange Callback each time the value is updated
-     * @returns 
+     * @returns
      */
     prop<T extends Record<any, any>>(obj: T, propertyName: keyof T, speed?: number, onChange?: (value: any) => void): BaseZmooth<any> {
         return this.val(obj[propertyName], speed, (value: any) => {

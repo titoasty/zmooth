@@ -3,6 +3,7 @@ export abstract class BaseZmooth<T> {
     to: T;
     speed: number;
     private _alive = true;
+    paused = false;
 
     constructor(value: T, to: T, speed: number = 1) {
         this._value = value;
@@ -22,6 +23,11 @@ export abstract class BaseZmooth<T> {
 
     get alive() {
         return this._alive;
+    }
+
+    reset(value: T) {
+        this._value = value;
+        this.to = value;
     }
 
     protected smoothValue(from: number, to: number, delta: number) {

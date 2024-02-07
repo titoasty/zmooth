@@ -30,6 +30,7 @@ var BaseZmooth = class {
   to;
   speed;
   _alive = true;
+  paused = false;
   constructor(value, to, speed = 1) {
     this._value = value;
     this.to = to;
@@ -43,6 +44,10 @@ var BaseZmooth = class {
   }
   get alive() {
     return this._alive;
+  }
+  reset(value) {
+    this._value = value;
+    this.to = value;
   }
   smoothValue(from, to, delta) {
     return from + (to - from) * this.speed * delta;
@@ -103,6 +108,9 @@ var ZmoothManager = class {
     let i = this.zmooths.length;
     while (i-- > 0) {
       const zmooth = this.zmooths[i];
+      if (zmooth.paused) {
+        continue;
+      }
       if (zmooth.alive) {
         zmooth.update(delta);
       } else {
@@ -110,27 +118,6 @@ var ZmoothManager = class {
       }
     }
   }
-  /**
-   * Smooth a value to its destination value
-   * Each time you assign a value via myZmooth.to, it will smoothly interpolate to the destination value
-   * You can assign a new value via .to any time you want
-   * @example
-   * const myZmooth = zmooth.val(0, 5, function(value) {
-   *     console.log(value);
-   * });
-   * 
-   * // will smoothly change from 0 to 10
-   * myZmooth.to = 10;
-   * 
-   * setTimeout(function() {
-   *     // will smoothly change from current myZmooth value to 20
-   *     myZmooth.to = 20;
-   * }, 2000);
-   * @param value Start value
-   * @param speed Speed of change. The formula is: value = value + (toValue - currValue) * delta * speed
-   * @param onChange Callback each time the value is updated
-   * @returns 
-   */
   val(value, speed, onChange) {
     const zmooth = Array.isArray(value) ? new ZmoothArray(value, speed, onChange) : new ZmoothNumber(value, speed, onChange);
     this.zmooths.push(zmooth);
@@ -143,17 +130,17 @@ var ZmoothManager = class {
    * const myObj = {
    *     myValue: 0,
    * };
-   * 
+   *
    * // now property 'myValue' on object myObj is managed automatically
    * const myZmooth = zmooth.prop(myObj, 'myValue');
-   * 
+   *
    * // now myObj.value will automatically be interpolated to 10
    * myZmooth.to = 10;
    * @param obj Any javascript object
    * @param propertyName Property that must be smoothed
    * @param speed Speed of change
    * @param onChange Callback each time the value is updated
-   * @returns 
+   * @returns
    */
   prop(obj, propertyName, speed, onChange) {
     return this.val(obj[propertyName], speed, (value) => {
@@ -195,4 +182,3 @@ var src_default = {
   prop: globalManager.prop.bind(globalManager),
   killAll: globalManager.killAll.bind(globalManager)
 };
-//# sourceMappingURL=zmooth.cjs.map
