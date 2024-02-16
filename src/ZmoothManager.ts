@@ -3,34 +3,50 @@ import { ZmoothArray } from './ZmoothArray';
 import { ZmoothNumber } from './ZmoothNumber';
 
 export class ZmoothManager {
-    private zmooths: BaseZmooth<unknown>[] = [];
-    private lastTime = performance.now();
-    private rafID: number = -1;
+    private _zmooths: BaseZmooth<unknown>[] = [];
+    private _lastTime = performance.now();
+    private _rafID: number = -1;
+    autoUpdating: boolean = false;
 
     constructor(autoUpdate: boolean = true) {
+        this.autoUpdating = autoUpdate;
+
         if (autoUpdate) {
-            this.rafID = requestAnimationFrame(this.autoUpdate.bind(this));
+            this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
         }
     }
 
-    autoUpdate() {
+    _autoUpdate() {
+        this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
+
         const now = performance.now();
-        const delta = (now - this.lastTime) / 1000;
-        this.lastTime = now;
+        const delta = (now - this._lastTime) / 1000;
+        this._lastTime = now;
 
         this.update(delta);
+    }
 
-        this.rafID = requestAnimationFrame(this.autoUpdate.bind(this));
+    setAutoUpdate(autoUpdate: boolean) {
+        this.autoUpdating = autoUpdate;
+
+        if (autoUpdate) {
+            if (this._rafID < 0) {
+                this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
+            }
+        } else {
+            cancelAnimationFrame(this._rafID);
+            this._rafID = -1;
+        }
     }
 
     /**
-     * Update all zmooth objects
+     * Updates all zmooth objects
      * @param delta delta time in seconds
      */
     update(delta: number) {
-        let i = this.zmooths.length;
+        let i = this._zmooths.length;
         while (i-- > 0) {
-            const zmooth = this.zmooths[i];
+            const zmooth = this._zmooths[i];
 
             if (zmooth.paused) {
                 continue;
@@ -39,13 +55,13 @@ export class ZmoothManager {
             if (zmooth.alive) {
                 zmooth.update(delta);
             } else {
-                this.zmooths.splice(i, 1);
+                this._zmooths.splice(i, 1);
             }
         }
     }
 
     /**
-     * Smooth a value to its destination value
+     * Smoothes a value to its destination value
      * Each time you assign a value via myZmooth.to, it will smoothly interpolate to the destination value
      * You can assign a new value via .to any time you want
      * @example
@@ -71,7 +87,7 @@ export class ZmoothManager {
         // FIXME
         // @ts-ignore
         const zmooth = Array.isArray(value) ? new ZmoothArray(value, speed, onChange) : new ZmoothNumber(value, speed, onChange);
-        this.zmooths.push(zmooth);
+        this._zmooths.push(zmooth);
         return zmooth;
     }
 
@@ -102,7 +118,7 @@ export class ZmoothManager {
     }
 
     /**
-     * Kill a zmooth object
+     * Kills a zmooth object
      * @param zmooth zmooth object to kill
      */
     kill(zmooth: BaseZmooth<unknown>) {
@@ -110,23 +126,23 @@ export class ZmoothManager {
     }
 
     /**
-     * Kill all zmooth objects
+     * Kills all zmooth objects
      */
     killAll() {
-        let i = this.zmooths.length - 1;
+        let i = this._zmooths.length - 1;
         while (i-- > 0) {
-            this.zmooths[i].kill();
+            this._zmooths[i].kill();
         }
 
-        this.zmooths = [];
+        this._zmooths = [];
     }
 
     /**
-     * Destroy the zmooth manager
+     * Destroys the zmooth manager
      */
     destroy() {
         this.killAll();
 
-        cancelAnimationFrame(this.rafID);
+        cancelAnimationFrame(this._rafID);
     }
 }

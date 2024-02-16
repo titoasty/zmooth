@@ -31,6 +31,7 @@ export abstract class BaseZmooth<T> {
     }
 
     protected smoothValue(from: number, to: number, delta: number) {
-        return from + (to - from) * this.speed * delta;
+        // ensure we don't got past "to" and don't go in the past
+        return from + (to - from) * Math.max(0, Math.min(1, this.speed * delta));
     }
 }

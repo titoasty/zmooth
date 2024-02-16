@@ -1,7 +1,7 @@
 # Zmooth
 
-Zmooth is a library to smoothly interpolate values.\
-You simply set a destination value, and it will automatically interpolate to it.\
+Zmooth is a library to smoothly interpolate values over time.\
+You simply set a destination value, and it will automatically interpolate to it over time.\
 The interpolation formula is the following:
 ```
 currentValue = previousValue + (destinationValue - previousValue) * delta * speed
@@ -31,32 +31,52 @@ Or you can use the files located in the "dist" directory.
 ## Usage
 
 ```javascript
-// create a zmooth object with the start value 0 and a speed of 5
+// create a zmooth object with the start value 0
+// and an interpolation speed of 5
+// the last parameter is a callback called
+// each time the value is interpolated
 const myZmooth = zmooth.val(0, 5, function(value) {
     console.log(value);
 });
 
 
-// set destination value to 10
+// sets destination value to 10
+// now the callback above will be called with a value
+// gradually going from 0 to 10 over time
 myZmooth.to = 10;
 
 
-// you can also access the value with the "value" property:
+// you can also directly access the value with field "value"
 setInterval(function() {
     console.log(myZmooth.value);
 }, 100);
 
 
-// if you want to kill the zmooth object, just call .kill()
+// to kill the zmooth object, just call .kill()
 myZmooth.kill();
 ```
 
+Another example using requestAnimationFrame:
+
+```javascript
+const myZmooth = zmooth.val(0, 5);
+
+const render = function() {
+    requestAnimationFrame(render);
+
+    console.log(myZmooth.value);
+}
+
+requestAnimationFrame(render);
+
+myZmooth.to = 10;
+```
 
 ## Functions
-### `zmooth.to(startValue, speed=1, callback=undefined)`
+### `zmooth.to(startValue, [speed=1], [callback=undefined])`
 
-Create a zmooth object and returns it.\
-You can now set the destination value by setting the *to* property.
+Creates a zmooth object and returns it.\
+You can now set the destination value by setting the "*to*" property.
 
 To kill it, simply call .kill() on a zmooth object.
 
@@ -71,32 +91,34 @@ const myZmooth = zmooth.to(0, 5, function(value) {
 myZmooth.to = 10
 
 // let's observe the value changing
-setInterval(function() {
+const intID = setInterval(function() {
     console.log(myZmooth.value);
 }, 100);
 
-// and now let's kill the zmooth object after a certain time
+// let's kill the zmooth object after an arbitrary duration
 setTimeout(function() {
+    clearInterval(intID);
     myZmooth.kill();
 }, 5000);
 ```
 
 ### `zmooth.prop(object, propertyName, speed=5, callback=undefined)`
 
-Same as val() but the property of the object will be automatically updated.
+Same as val() but targets the property of an object.
+The property will be automatically updated.
 
 ```javascript
-// create a dummy object
+// creates a dummy object
 const myObj = {
     myProperty: 0,
 }
 
-// create a zmooth object referencing "myProperty" of myObj
+// creates a zmooth object referencing "myProperty" of myObj
 const myZmooth = zmooth.prop(obj, 'myProperty', 5, function(value) {
     console.log(myProperty.value);
 });
 
-// now myObj.myProperty will be automatically assigned the smoothed value
+// now myObj.myProperty will automatically be assigned the smoothed value
 myZmooth.to = 10;
 ```
 
@@ -104,4 +126,4 @@ myZmooth.to = 10;
 
 ### `zmooth.killAll()`
 
-Kill all the zmooth objects
+Kills all the zmooth objects
