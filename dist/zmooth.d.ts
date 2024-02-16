@@ -26,18 +26,20 @@ declare class ZmoothNumber extends BaseZmooth<number> {
 }
 
 declare class ZmoothManager {
-    private zmooths;
-    private lastTime;
-    private rafID;
+    private _zmooths;
+    private _lastTime;
+    private _rafID;
+    autoUpdating: boolean;
     constructor(autoUpdate?: boolean);
-    autoUpdate(): void;
+    _autoUpdate(): void;
+    setAutoUpdate(autoUpdate: boolean): void;
     /**
-     * Update all zmooth objects
+     * Updates all zmooth objects
      * @param delta delta time in seconds
      */
     update(delta: number): void;
     /**
-     * Smooth a value to its destination value
+     * Smoothes a value to its destination value
      * Each time you assign a value via myZmooth.to, it will smoothly interpolate to the destination value
      * You can assign a new value via .to any time you want
      * @example
@@ -80,18 +82,25 @@ declare class ZmoothManager {
      */
     prop<T extends Record<any, any>>(obj: T, propertyName: keyof T, speed?: number, onChange?: (value: any) => void): BaseZmooth<any>;
     /**
-     * Kill a zmooth object
+     * Kills a zmooth object
      * @param zmooth zmooth object to kill
      */
     kill(zmooth: BaseZmooth<unknown>): void;
     /**
-     * Kill all zmooth objects
+     * Kills all zmooth objects
      */
     killAll(): void;
     /**
-     * Destroy the zmooth manager
+     * Destroys the zmooth manager
      */
     destroy(): void;
+}
+
+declare class ZmoothObject<T extends string = string> extends BaseZmooth<Record<string, number>> {
+    onChange?: (obj: Record<string, number>) => void;
+    fieldNames: string[];
+    constructor(obj: Record<T, number>, fieldNames?: string[], speed?: number, onChange?: (obj: Record<string, number>) => void);
+    update(delta: number): void;
 }
 
 declare const _default: {
@@ -102,6 +111,8 @@ declare const _default: {
     };
     prop: <T_2 extends Record<any, any>>(obj: T_2, propertyName: keyof T_2, speed?: number | undefined, onChange?: ((value: any) => void) | undefined) => BaseZmooth<any>;
     killAll: () => void;
+    setAutoUpdate: (autoUpdate: boolean) => void;
+    update: (delta: number) => void;
 };
 
-export { _default as default };
+export { ZmoothArray, ZmoothNumber, ZmoothObject, _default as default };

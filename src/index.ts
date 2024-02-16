@@ -1,4 +1,7 @@
 import { ZmoothManager } from './ZmoothManager';
+export { ZmoothArray } from './ZmoothArray';
+export { ZmoothNumber } from './ZmoothNumber';
+export { ZmoothObject } from './ZmoothObject';
 
 const globalManager = new ZmoothManager(true);
 

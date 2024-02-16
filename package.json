@@ -1,6 +1,6 @@
 {
   "name": "zmooth",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "smooth transition between values",
   "main": "/dist/zmooth.js",
   "module": "./dist/zmooth.mjs",

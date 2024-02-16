@@ -20,6 +20,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  ZmoothArray: () => ZmoothArray,
+  ZmoothNumber: () => ZmoothNumber,
+  ZmoothObject: () => ZmoothObject,
   default: () => src_default
 });
 module.exports = __toCommonJS(src_exports);
@@ -50,7 +53,7 @@ var BaseZmooth = class {
     this.to = value;
   }
   smoothValue(from, to, delta) {
-    return from + (to - from) * this.speed * delta;
+    return from + (to - from) * Math.max(0, Math.min(1, this.speed * delta));
   }
 };
 
@@ -85,42 +88,55 @@ var ZmoothNumber = class extends BaseZmooth {
 
 // src/ZmoothManager.ts
 var ZmoothManager = class {
-  zmooths = [];
-  lastTime = performance.now();
-  rafID = -1;
+  _zmooths = [];
+  _lastTime = performance.now();
+  _rafID = -1;
+  autoUpdating = false;
   constructor(autoUpdate = true) {
+    this.autoUpdating = autoUpdate;
     if (autoUpdate) {
-      this.rafID = requestAnimationFrame(this.autoUpdate.bind(this));
+      this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
     }
   }
-  autoUpdate() {
+  _autoUpdate() {
+    this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
     const now = performance.now();
-    const delta = (now - this.lastTime) / 1e3;
-    this.lastTime = now;
+    const delta = (now - this._lastTime) / 1e3;
+    this._lastTime = now;
     this.update(delta);
-    this.rafID = requestAnimationFrame(this.autoUpdate.bind(this));
+  }
+  setAutoUpdate(autoUpdate) {
+    this.autoUpdating = autoUpdate;
+    if (autoUpdate) {
+      if (this._rafID < 0) {
+        this._rafID = requestAnimationFrame(this._autoUpdate.bind(this));
+      }
+    } else {
+      cancelAnimationFrame(this._rafID);
+      this._rafID = -1;
+    }
   }
   /**
-   * Update all zmooth objects
+   * Updates all zmooth objects
    * @param delta delta time in seconds
    */
   update(delta) {
-    let i = this.zmooths.length;
+    let i = this._zmooths.length;
     while (i-- > 0) {
-      const zmooth = this.zmooths[i];
+      const zmooth = this._zmooths[i];
       if (zmooth.paused) {
         continue;
       }
       if (zmooth.alive) {
         zmooth.update(delta);
       } else {
-        this.zmooths.splice(i, 1);
+        this._zmooths.splice(i, 1);
       }
     }
   }
   val(value, speed, onChange) {
     const zmooth = Array.isArray(value) ? new ZmoothArray(value, speed, onChange) : new ZmoothNumber(value, speed, onChange);
-    this.zmooths.push(zmooth);
+    this._zmooths.push(zmooth);
     return zmooth;
   }
   /**
@@ -149,28 +165,45 @@ var ZmoothManager = class {
     });
   }
   /**
-   * Kill a zmooth object
+   * Kills a zmooth object
    * @param zmooth zmooth object to kill
    */
   kill(zmooth) {
     zmooth.kill();
   }
   /**
-   * Kill all zmooth objects
+   * Kills all zmooth objects
    */
   killAll() {
-    let i = this.zmooths.length - 1;
+    let i = this._zmooths.length - 1;
     while (i-- > 0) {
-      this.zmooths[i].kill();
+      this._zmooths[i].kill();
     }
-    this.zmooths = [];
+    this._zmooths = [];
   }
   /**
-   * Destroy the zmooth manager
+   * Destroys the zmooth manager
    */
   destroy() {
     this.killAll();
-    cancelAnimationFrame(this.rafID);
+    cancelAnimationFrame(this._rafID);
+  }
+};
+
+// src/ZmoothObject.ts
+var ZmoothObject = class extends BaseZmooth {
+  onChange;
+  fieldNames;
+  constructor(obj, fieldNames, speed, onChange) {
+    super({ ...obj }, { ...obj }, speed);
+    this.onChange = onChange;
+    this.fieldNames = fieldNames || Object.keys(obj);
+  }
+  update(delta) {
+    for (const fieldName of this.fieldNames) {
+      this._value[fieldName] = this.smoothValue(this._value[fieldName], this.to[fieldName], delta);
+    }
+    this.onChange?.(this._value);
   }
 };
 
@@ -180,5 +213,7 @@ var src_default = {
   inst: (autoUpdate) => new ZmoothManager(autoUpdate),
   val: globalManager.val.bind(globalManager),
   prop: globalManager.prop.bind(globalManager),
-  killAll: globalManager.killAll.bind(globalManager)
+  killAll: globalManager.killAll.bind(globalManager),
+  setAutoUpdate: (autoUpdate) => globalManager.setAutoUpdate(autoUpdate),
+  update: (delta) => globalManager.update(delta)
 };
